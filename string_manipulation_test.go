@@ -41,6 +41,36 @@ func Test_split(t *testing.T) {
 			source: "SplitPascalCase",
 			want:   []string{"split", "pascal", "case"},
 		},
+		{
+			name:   "split snake numbers",
+			source: "split_12_snake",
+			want:   []string{"split", "12", "snake"},
+		},
+		{
+			name:   "split kebab numbers",
+			source: "split-12-kebab",
+			want:   []string{"split", "12", "kebab"},
+		},
+		{
+			name:   "split camel numbers",
+			source: "split12Camel",
+			want:   []string{"split", "12", "camel"},
+		},
+		{
+			name:   "split pascal numbers",
+			source: "Split12Pascal",
+			want:   []string{"split", "12", "pascal"},
+		},
+		{
+			name:   "split screaming snake numbers",
+			source: "SPLIT_12_SCREAMING",
+			want:   []string{"split", "12", "screaming"},
+		},
+		{
+			name:   "split screaming kebab numbers",
+			source: "SPLIT-12-SCREAMING",
+			want:   []string{"split", "12", "screaming"},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
