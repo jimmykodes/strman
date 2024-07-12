@@ -75,195 +75,180 @@ func Test_split(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := split(tt.source); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("split() = %v, want %v", got, tt.want)
+				t.Errorf("split() = %q, want %q", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestToDelimited(t *testing.T) {
+func TestConversions(t *testing.T) {
+	type want struct {
+		delimited          string
+		screamingDelimited string
+		kebab              string
+		screamingKebab     string
+		snake              string
+		screamingSnake     string
+		camel              string
+		pascal             string
+	}
 	tests := []struct {
-		name      string
-		source    string
-		delimiter string
-		want      string
+		name   string
+		source string
+		want   want
 	}{
 		{
-			name:      "from kebab to delimited",
-			source:    "from-kebab",
-			delimiter: ".",
-			want:      "from.kebab",
+			name:   "from period",
+			source: "lorem.ipsum.$.sat.12",
+			want: want{
+				delimited:          "lorem.ipsum.$.sat.12",
+				screamingDelimited: "LOREM.IPSUM.$.SAT.12",
+				kebab:              "lorem-ipsum-$-sat-12",
+				screamingKebab:     "LOREM-IPSUM-$-SAT-12",
+				snake:              "lorem_ipsum_$_sat_12",
+				screamingSnake:     "LOREM_IPSUM_$_SAT_12",
+				camel:              "loremIpsum$Sat12",
+				pascal:             "LoremIpsum$Sat12",
+			},
 		},
 		{
-			name:      "from snake to delimited",
-			source:    "from_snake",
-			delimiter: ".",
-			want:      "from.snake",
+			name:   "from double under",
+			source: "lorem__ipsum__$__sat__12",
+			want: want{
+				delimited:          "lorem.ipsum.$.sat.12",
+				screamingDelimited: "LOREM.IPSUM.$.SAT.12",
+				kebab:              "lorem-ipsum-$-sat-12",
+				screamingKebab:     "LOREM-IPSUM-$-SAT-12",
+				snake:              "lorem_ipsum_$_sat_12",
+				screamingSnake:     "LOREM_IPSUM_$_SAT_12",
+				camel:              "loremIpsum$Sat12",
+				pascal:             "LoremIpsum$Sat12",
+			},
 		},
 		{
-			name:      "from screaming snake to delimited",
-			source:    "FROM_SCREAMING_SNAKE",
-			delimiter: ".",
-			want:      "from.screaming.snake",
+			name:   "from screaming period",
+			source: "LOREM.IPSUM.$.SAT.12",
+			want: want{
+				delimited:          "lorem.ipsum.$.sat.12",
+				screamingDelimited: "LOREM.IPSUM.$.SAT.12",
+				kebab:              "lorem-ipsum-$-sat-12",
+				screamingKebab:     "LOREM-IPSUM-$-SAT-12",
+				snake:              "lorem_ipsum_$_sat_12",
+				screamingSnake:     "LOREM_IPSUM_$_SAT_12",
+				camel:              "loremIpsum$Sat12",
+				pascal:             "LoremIpsum$Sat12",
+			},
 		},
 		{
-			name:      "from camel to delimited",
-			source:    "fromCamel",
-			delimiter: ".",
-			want:      "from.camel",
+			name:   "from kebab",
+			source: "lorem-ipsum-$-sat-12",
+			want: want{
+				delimited:          "lorem.ipsum.$.sat.12",
+				screamingDelimited: "LOREM.IPSUM.$.SAT.12",
+				kebab:              "lorem-ipsum-$-sat-12",
+				screamingKebab:     "LOREM-IPSUM-$-SAT-12",
+				snake:              "lorem_ipsum_$_sat_12",
+				screamingSnake:     "LOREM_IPSUM_$_SAT_12",
+				camel:              "loremIpsum$Sat12",
+				pascal:             "LoremIpsum$Sat12",
+			},
 		},
 		{
-			name:      "from Pascal to delimited",
-			source:    "FromPascal",
-			delimiter: ".",
-			want:      "from.pascal",
+			name:   "from screaming kebab",
+			source: "LOREM-IPSUM-$-SAT-12",
+			want: want{
+				delimited:          "lorem.ipsum.$.sat.12",
+				screamingDelimited: "LOREM.IPSUM.$.SAT.12",
+				kebab:              "lorem-ipsum-$-sat-12",
+				screamingKebab:     "LOREM-IPSUM-$-SAT-12",
+				snake:              "lorem_ipsum_$_sat_12",
+				screamingSnake:     "LOREM_IPSUM_$_SAT_12",
+				camel:              "loremIpsum$Sat12",
+				pascal:             "LoremIpsum$Sat12",
+			},
+		},
+		{
+			name:   "from snake",
+			source: "lorem_ipsum_$_sat_12",
+			want: want{
+				delimited:          "lorem.ipsum.$.sat.12",
+				screamingDelimited: "LOREM.IPSUM.$.SAT.12",
+				kebab:              "lorem-ipsum-$-sat-12",
+				screamingKebab:     "LOREM-IPSUM-$-SAT-12",
+				snake:              "lorem_ipsum_$_sat_12",
+				screamingSnake:     "LOREM_IPSUM_$_SAT_12",
+				camel:              "loremIpsum$Sat12",
+				pascal:             "LoremIpsum$Sat12",
+			},
+		},
+		{
+			name:   "from screaming snake",
+			source: "LOREM_IPSUM_$_SAT_12",
+			want: want{
+				delimited:          "lorem.ipsum.$.sat.12",
+				screamingDelimited: "LOREM.IPSUM.$.SAT.12",
+				kebab:              "lorem-ipsum-$-sat-12",
+				screamingKebab:     "LOREM-IPSUM-$-SAT-12",
+				snake:              "lorem_ipsum_$_sat_12",
+				screamingSnake:     "LOREM_IPSUM_$_SAT_12",
+				camel:              "loremIpsum$Sat12",
+				pascal:             "LoremIpsum$Sat12",
+			},
+		},
+		{
+			name:   "from camel",
+			source: "loremIpsum$Sat12",
+			want: want{
+				delimited:          "lorem.ipsum.$.sat.12",
+				screamingDelimited: "LOREM.IPSUM.$.SAT.12",
+				kebab:              "lorem-ipsum-$-sat-12",
+				screamingKebab:     "LOREM-IPSUM-$-SAT-12",
+				snake:              "lorem_ipsum_$_sat_12",
+				screamingSnake:     "LOREM_IPSUM_$_SAT_12",
+				camel:              "loremIpsum$Sat12",
+				pascal:             "LoremIpsum$Sat12",
+			},
+		},
+		{
+			name:   "from pascal",
+			source: "LoremIpsum$Sat12",
+			want: want{
+				delimited:          "lorem.ipsum.$.sat.12",
+				screamingDelimited: "LOREM.IPSUM.$.SAT.12",
+				kebab:              "lorem-ipsum-$-sat-12",
+				screamingKebab:     "LOREM-IPSUM-$-SAT-12",
+				snake:              "lorem_ipsum_$_sat_12",
+				screamingSnake:     "LOREM_IPSUM_$_SAT_12",
+				camel:              "loremIpsum$Sat12",
+				pascal:             "LoremIpsum$Sat12",
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ToDelimited(tt.source, tt.delimiter); got != tt.want {
-				t.Errorf("ToDelimited() = %v, want %v", got, tt.want)
+			if got := ToDelimited(tt.source, "."); got != tt.want.delimited {
+				t.Errorf("invalid result for delimited: got %s - want %s", got, tt.want.delimited)
 			}
-		})
-	}
-}
-
-func TestToScreamingDelimited(t *testing.T) {
-	tests := []struct {
-		name      string
-		source    string
-		delimiter string
-		want      string
-	}{
-		{
-			name:      "from kebab to screaming delimited",
-			source:    "from-kebab",
-			delimiter: ".",
-			want:      "FROM.KEBAB",
-		},
-		{
-			name:      "from snake to screaming delimited",
-			source:    "from_snake",
-			delimiter: ".",
-			want:      "FROM.SNAKE",
-		},
-		{
-			name:      "from screaming snake to screaming delimited",
-			source:    "FROM_SCREAMING_SNAKE",
-			delimiter: ".",
-			want:      "FROM.SCREAMING.SNAKE",
-		},
-		{
-			name:      "from camel to screaming delimited",
-			source:    "fromCamel",
-			delimiter: ".",
-			want:      "FROM.CAMEL",
-		},
-		{
-			name:      "from pascal to screaming delimited",
-			source:    "FromPascal",
-			delimiter: ".",
-			want:      "FROM.PASCAL",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := ToScreamingDelimited(tt.source, tt.delimiter); got != tt.want {
-				t.Errorf("ToScreamingDelimited() = %v, want %v", got, tt.want)
+			if got := ToScreamingDelimited(tt.source, "."); got != tt.want.screamingDelimited {
+				t.Errorf("invalid result for screaming delimited: got %s - want %s", got, tt.want.screamingDelimited)
 			}
-		})
-	}
-}
-
-func TestToCamel(t *testing.T) {
-	tests := []struct {
-		name      string
-		source    string
-		delimiter string
-		want      string
-	}{
-		{
-			name:      "from kebab to camel",
-			source:    "from-kebab",
-			delimiter: ".",
-			want:      "fromKebab",
-		},
-		{
-			name:      "from snake to camel",
-			source:    "from_snake",
-			delimiter: ".",
-			want:      "fromSnake",
-		},
-		{
-			name:      "from screaming snake to camel",
-			source:    "FROM_SCREAMING_SNAKE",
-			delimiter: ".",
-			want:      "fromScreamingSnake",
-		},
-		{
-			name:      "from camel to camel",
-			source:    "fromCamel",
-			delimiter: ".",
-			want:      "fromCamel",
-		},
-		{
-			name:      "from pascal to camel",
-			source:    "FromPascal",
-			delimiter: ".",
-			want:      "fromPascal",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := ToCamel(tt.source); got != tt.want {
-				t.Errorf("ToCamel() = %v, want %v", got, tt.want)
+			if got := ToKebab(tt.source); got != tt.want.kebab {
+				t.Errorf("invalid result for kebab: got %s - want %s", got, tt.want.screamingDelimited)
 			}
-		})
-	}
-}
-
-func TestToPascal(t *testing.T) {
-	tests := []struct {
-		name      string
-		source    string
-		delimiter string
-		want      string
-	}{
-		{
-			name:      "from kebab to pascal",
-			source:    "from-kebab",
-			delimiter: ".",
-			want:      "FromKebab",
-		},
-		{
-			name:      "from snake to pascal",
-			source:    "from_snake",
-			delimiter: ".",
-			want:      "FromSnake",
-		},
-		{
-			name:      "from screaming snake to pascal",
-			source:    "FROM_SCREAMING_SNAKE",
-			delimiter: ".",
-			want:      "FromScreamingSnake",
-		},
-		{
-			name:      "from camel to pascal",
-			source:    "fromCamel",
-			delimiter: ".",
-			want:      "FromCamel",
-		},
-		{
-			name:      "from pascal to pascal",
-			source:    "FromPascal",
-			delimiter: ".",
-			want:      "FromPascal",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := ToPascal(tt.source); got != tt.want {
-				t.Errorf("ToPascal() = %v, want %v", got, tt.want)
+			if got := ToScreamingKebab(tt.source); got != tt.want.screamingKebab {
+				t.Errorf("invalid result for screaming kebab: got %s - want %s", got, tt.want.screamingKebab)
+			}
+			if got := ToSnake(tt.source); got != tt.want.snake {
+				t.Errorf("invalid result for snake: got %s - want %s", got, tt.want.snake)
+			}
+			if got := ToScreamingSnake(tt.source); got != tt.want.screamingSnake {
+				t.Errorf("invalid result for screaming snake: got %s - want %s", got, tt.want.screamingSnake)
+			}
+			if got := ToCamel(tt.source); got != tt.want.camel {
+				t.Errorf("invalid result for camel: got %s - want %s", got, tt.want.camel)
+			}
+			if got := ToPascal(tt.source); got != tt.want.pascal {
+				t.Errorf("invalid result for pascal: got %s - want %s", got, tt.want.pascal)
 			}
 		})
 	}

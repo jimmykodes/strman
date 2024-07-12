@@ -1,3 +1,3 @@
 module github.com/jimmykodes/strman
 
-go 1.17
+go 1.22

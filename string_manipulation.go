@@ -1,7 +1,6 @@
 package strman
 
 import (
-	"bytes"
 	"strings"
 )
 
@@ -10,78 +9,11 @@ const (
 	snakeDelimiter = "_"
 )
 
-type lexer struct {
-	source string
-	pos    int
+func isLower(b byte) bool {
+	return 'a' <= b && b <= 'z'
 }
 
-func (l *lexer) Peek() (byte, bool) {
-	if l.pos >= len(l.source) {
-		return 0, true
-	}
-	return l.source[l.pos], false
-}
-
-func (l *lexer) Read() (byte, bool) {
-	b, done := l.Peek()
-	if !done {
-		l.pos++
-	}
-	return b, done
-}
-
-type parser struct {
-	lexer  lexer
-	buf    [128]byte
-	bufLen int
-	done   bool
-}
-
-func (p *parser) addByte(b byte) {
-	p.buf[p.bufLen] = b
-	p.bufLen++
-}
-
-func (p *parser) Next() ([]byte, bool) {
-	for {
-		peek, done := p.lexer.Peek()
-		if done {
-			p.done = done
-			break
-		}
-		if peek == '-' || peek == '_' {
-			// for sure a boundary, eat the divider and break
-			p.lexer.Read()
-			break
-		}
-		if isCapital(peek) {
-			if p.bufLen > 0 && !isCapital(p.buf[p.bufLen-1]) {
-				// the buffer isn't empty, and it isn't full of capitals, this is a word division
-				break
-			}
-			p.buf[p.bufLen] = peek
-			p.bufLen++
-			p.lexer.Read()
-		} else if isNum(peek) {
-			if p.bufLen > 0 && !isNum(p.buf[p.bufLen-1]) {
-				// the buffer isn't empty, and it isn't full of numbers, this is a word division
-				break
-			}
-			p.buf[p.bufLen] = peek
-			p.bufLen++
-			p.lexer.Read()
-		} else {
-			p.buf[p.bufLen] = peek
-			p.bufLen++
-			p.lexer.Read()
-		}
-	}
-	v := bytes.ToLower(p.buf[:p.bufLen])
-	p.bufLen = 0
-	return v, p.done
-}
-
-func isCapital(b byte) bool {
+func isUpper(b byte) bool {
 	return 'A' <= b && b <= 'Z'
 }
 
@@ -89,16 +21,24 @@ func isNum(b byte) bool {
 	return '0' <= b && b <= '9'
 }
 
+func isSymbol(b byte) bool {
+	switch b {
+	case ' ', '\t', '\n', '\r', '.', '_', '-':
+		return false
+	default:
+		return true
+	}
+}
+
 func split(source string) []string {
-	l := lexer{source: source}
-	p := parser{lexer: l}
+	p := splitter{src: source}
 	var out []string
 	for {
-		next, done := p.Next()
-		out = append(out, string(next))
+		next, done := p.next()
 		if done {
 			return out
 		}
+		out = append(out, next)
 	}
 }
 
@@ -130,23 +70,25 @@ func ToScreamingSnake(source string) string {
 
 func ToCamel(source string) string {
 	s := split(source)
-	transform(s, strings.Title, 1)
+	transform(s, title, 1)
 	return strings.Join(s, "")
 }
 
 func ToPascal(source string) string {
 	s := split(source)
-	transform(s, strings.Title, 0)
+	transform(s, title, 0)
 	return strings.Join(s, "")
 }
 
-type transformFunc func(string) string
+func title(src string) string {
+	return strings.ToUpper(src[:1]) + src[1:]
+}
 
-func transform(s []string, f transformFunc, n int) {
-	for i, v := range s {
-		if i < n {
+func transform(src []string, transformFunc func(string) string, startIdx int) {
+	for i, v := range src {
+		if i < startIdx {
 			continue
 		}
-		s[i] = f(v)
+		src[i] = transformFunc(v)
 	}
 }
