@@ -18,7 +18,6 @@ type splitter struct {
 	startPos int
 	readPos  int
 	hasLower bool
-	hasUpper bool
 	done     bool
 }
 
