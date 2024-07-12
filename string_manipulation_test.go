@@ -1,11 +1,13 @@
-package strman
+package strman_test
 
 import (
 	"reflect"
 	"testing"
+
+	"github.com/jimmykodes/strman"
 )
 
-func Test_split(t *testing.T) {
+func Test_Split(t *testing.T) {
 	tests := []struct {
 		name   string
 		source string
@@ -71,10 +73,15 @@ func Test_split(t *testing.T) {
 			source: "SPLIT-12-SCREAMING",
 			want:   []string{"split", "12", "screaming"},
 		},
+		{
+			name:   "split consecutive caps in camel",
+			source: "thisIsATest",
+			want:   []string{"this", "is", "a", "test"},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := split(tt.source); !reflect.DeepEqual(got, tt.want) {
+			if got := strman.Split(tt.source); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("split() = %q, want %q", got, tt.want)
 			}
 		})
@@ -223,31 +230,59 @@ func TestConversions(t *testing.T) {
 				pascal:             "LoremIpsum$Sat12",
 			},
 		},
+		{
+			name:   "from mixed",
+			source: "lorem-ipsum$.dolarSat_12",
+			want: want{
+				delimited:          "lorem.ipsum.$.dolar.sat.12",
+				screamingDelimited: "LOREM.IPSUM.$.DOLAR.SAT.12",
+				kebab:              "lorem-ipsum-$-dolar-sat-12",
+				screamingKebab:     "LOREM-IPSUM-$-DOLAR-SAT-12",
+				snake:              "lorem_ipsum_$_dolar_sat_12",
+				screamingSnake:     "LOREM_IPSUM_$_DOLAR_SAT_12",
+				camel:              "loremIpsum$DolarSat12",
+				pascal:             "LoremIpsum$DolarSat12",
+			},
+		},
+		{
+			name:   "consecutive caps in camel case",
+			source: "thisIsATest",
+			want: want{
+				delimited:          "this.is.a.test",
+				screamingDelimited: "THIS.IS.A.TEST",
+				kebab:              "this-is-a-test",
+				screamingKebab:     "THIS-IS-A-TEST",
+				snake:              "this_is_a_test",
+				screamingSnake:     "THIS_IS_A_TEST",
+				camel:              "thisIsATest",
+				pascal:             "ThisIsATest",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ToDelimited(tt.source, "."); got != tt.want.delimited {
+			if got := strman.ToDelimited(tt.source, "."); got != tt.want.delimited {
 				t.Errorf("invalid result for delimited: got %s - want %s", got, tt.want.delimited)
 			}
-			if got := ToScreamingDelimited(tt.source, "."); got != tt.want.screamingDelimited {
+			if got := strman.ToScreamingDelimited(tt.source, "."); got != tt.want.screamingDelimited {
 				t.Errorf("invalid result for screaming delimited: got %s - want %s", got, tt.want.screamingDelimited)
 			}
-			if got := ToKebab(tt.source); got != tt.want.kebab {
+			if got := strman.ToKebab(tt.source); got != tt.want.kebab {
 				t.Errorf("invalid result for kebab: got %s - want %s", got, tt.want.screamingDelimited)
 			}
-			if got := ToScreamingKebab(tt.source); got != tt.want.screamingKebab {
+			if got := strman.ToScreamingKebab(tt.source); got != tt.want.screamingKebab {
 				t.Errorf("invalid result for screaming kebab: got %s - want %s", got, tt.want.screamingKebab)
 			}
-			if got := ToSnake(tt.source); got != tt.want.snake {
+			if got := strman.ToSnake(tt.source); got != tt.want.snake {
 				t.Errorf("invalid result for snake: got %s - want %s", got, tt.want.snake)
 			}
-			if got := ToScreamingSnake(tt.source); got != tt.want.screamingSnake {
+			if got := strman.ToScreamingSnake(tt.source); got != tt.want.screamingSnake {
 				t.Errorf("invalid result for screaming snake: got %s - want %s", got, tt.want.screamingSnake)
 			}
-			if got := ToCamel(tt.source); got != tt.want.camel {
+			if got := strman.ToCamel(tt.source); got != tt.want.camel {
 				t.Errorf("invalid result for camel: got %s - want %s", got, tt.want.camel)
 			}
-			if got := ToPascal(tt.source); got != tt.want.pascal {
+			if got := strman.ToPascal(tt.source); got != tt.want.pascal {
 				t.Errorf("invalid result for pascal: got %s - want %s", got, tt.want.pascal)
 			}
 		})

@@ -30,7 +30,7 @@ func isSymbol(b byte) bool {
 	}
 }
 
-func split(source string) []string {
+func Split(source string) []string {
 	p := splitter{src: source}
 	var out []string
 	for {
@@ -43,11 +43,11 @@ func split(source string) []string {
 }
 
 func ToDelimited(source, delimiter string) string {
-	return strings.Join(split(source), delimiter)
+	return strings.Join(Split(source), delimiter)
 }
 
 func ToScreamingDelimited(source, delimiter string) string {
-	s := split(source)
+	s := Split(source)
 	transform(s, strings.ToUpper, 0)
 	return strings.Join(s, delimiter)
 }
@@ -69,13 +69,13 @@ func ToScreamingSnake(source string) string {
 }
 
 func ToCamel(source string) string {
-	s := split(source)
+	s := Split(source)
 	transform(s, title, 1)
 	return strings.Join(s, "")
 }
 
 func ToPascal(source string) string {
-	s := split(source)
+	s := Split(source)
 	transform(s, title, 0)
 	return strings.Join(s, "")
 }
