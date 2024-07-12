@@ -32,7 +32,7 @@ func isSymbol(b byte) bool {
 
 func Split(source string) []string {
 	p := splitter{src: source}
-	var out []string
+	out := make([]string, 0, len(source)/3)
 	for {
 		next, done := p.next()
 		if done {

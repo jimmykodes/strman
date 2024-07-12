@@ -18,6 +18,7 @@ type splitter struct {
 	startPos int
 	readPos  int
 	hasLower bool
+	hasUpper bool
 	done     bool
 }
 
@@ -52,6 +53,7 @@ func (s *splitter) next() (string, bool) {
 	}
 	// record start of current "word"
 	s.startPos = s.readPos
+	hasUpper := currentState == stateUpper
 	for {
 		s.readPos++
 		if s.readPos >= len(s.src) {
@@ -59,6 +61,7 @@ func (s *splitter) next() (string, bool) {
 			break
 		}
 		newState := s.readState()
+		hasUpper = hasUpper || newState == stateUpper
 		if newState != currentState {
 			if newState == stateLower && currentState == stateUpper {
 				// transitioning from a capital to a lowercase, generally the same word
@@ -76,6 +79,10 @@ func (s *splitter) next() (string, bool) {
 			break
 		}
 	}
-
+	if !hasUpper {
+		// if the current word has no uppercase, skip the `ToLower` call, since that
+		// inherently allocates a new string
+		return s.src[s.startPos:s.readPos], false
+	}
 	return strings.ToLower(s.src[s.startPos:s.readPos]), false
 }

@@ -288,3 +288,11 @@ func TestConversions(t *testing.T) {
 		})
 	}
 }
+
+func Benchmark_Split(b *testing.B) {
+	src := "loremIpsum$Sat12thingTestTacoSplitLotsOfWords"
+	for i := 0; i < b.N; i++ {
+		got := strman.Split(src)
+		_ = got
+	}
+}
